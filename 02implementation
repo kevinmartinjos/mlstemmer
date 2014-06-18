@@ -1,0 +1,26 @@
+In the previous file, I described how we will classify the different suffixes into 3 levels. Now on to the implementation.
+
+Implmenting a finite state automaton seems probable since some people have already implemented a malayalam stemmer using FSA to a great accuracy :
+
+see : http://www.ldcil.org/up/conferences/morph/presentations/Vijay%20%5BCompatibility%20Mode%5D.pdf
+
+Also, by classifying suffixes into levels and then recursively calling each other until an end condition is met, I think we were implicitly using an FSA.
+
+However, the problem is that the algorithm that we eventually come up with should be applicable to ALL indic languages. Which means simply throwing rules around like diadara did here [https://github.com/diadara/silpa-stemmer] will not do.
+
+We start from state 0. We move on to state 1 when the buffer contains level 1 ending, or state 2 if its a level 2 and so on.
+Minimizing transitions from one level to itself (or outright eliminating them) should be a priority when designing.
+
+From level 1, we can move to either level 0 or level 2 (or level3), depending on the input.
+
+There are certain terminal conditions that will result in a transition to the final state from any of level 1,2 of 3.
+
+[To do : Supplement with a diagram]
+
+So that's the concept. How to implement it?
+
+Every rule in the scheme file like ളും=ൾ would be eventually compiled into an entry in an sqlite database table. Let us call this table stemtable. In the scheme file, the designer/programmer should specify which rules belong to level 1 and which belong to level 2 (or level 3) manually.
+
+The structure of stemtable would be as follows
+
+stemtable(current_ending,new_ending,current_state,new_state)

@@ -1,0 +1,119 @@
+The word endings can be classified based on their size.
+
+LEVEL 3 :
+
+These are the largest endings. They are almost always removed to obtain a word with a lower level ending.
+
+eg : 
+
+ വിശ്വാസമായിരിക്കുന്ന	->	വിശ്വാസമായി	
+
+LEVEL 2 :
+
+The most common type of endings. They can either be removed or should be replaced to obtain a lower base.
+
+eg :
+പ്രതീക്ഷയോടെ		->	പ്രതീക്ഷ	(removed)
+കാര്യമുണ്ട്	->	കാര്യം	(replaced)
+അവളുടെ	->	അവൾ	(replaced)
+
+LEVEL 1 :
+
+The simplest of endings. These are often just 1 syllable long. Removed or replaced by a swara.
+
+eg :
+
+കാഠിന്യത്തെ	->	കാഠിന്യം
+ജീവിതസഖിയെ	->	ജീവിതസഖി
+
+
+The stemming of വിശ്വാസമായിരിക്കുന്ന can be done sequentially as follows :
+
+വിശ്വാസമായിരിക്കുന്ന 	->	വിശ്വാസമാ	->	വിശ്വാസം
+level 4 ending		->	level 1 ending	->	base word
+
+
+We stop stemming when the final character is either a syllable without swaraas (as in പ്രതീക്ഷ) or an ം (as in വിശ്വാസം).
+
+Also not that level 2 is absent in the above example.
+
+I think it would be better to scan for endings in the order of increasing levels. That is, first syllable from the end is examined. If it belongs to level 1, stem it. Else check if it is in level 2. If it is, stem. Else check if it is in level 3. If it is not, add it to the next character from the rear in the word and repeat the level checks.
+
+This example should make it clear :
+
+Input : തൽപരകക്ഷികളുടെ
+
+We take each character from the rear, keep it in a buffer and try to stem it
+
+step 1 : 	buffer -> ടെ 
+		buffer contains level 1 ending. Stem to null
+		RESULT : തൽപരകക്ഷികളു
+
+step 2 :	buffer -> ളു
+		buffer contains level 1 ending. Stem to ൾ
+		RESULT : തൽപരകക്ഷികൾ
+
+step 3 : 	stemming stops
+
+Now consider a more complex example :
+
+Input : സമയമായിരിക്കുന്നതുക്കൊണ്ടു
+
+step 1 :	buffer -> ണ്ടു
+		Not in level 1. (Won't check level 2 or 3 since single syllable)
+		
+step 2 :	Add next character to buffer
+		buffer -> ക്കൊണ്ടു
+		buffer contains level 2 ending. Stem
+		RESULT : സമയമായിരിക്കുന്നതു
+
+step 3:		Add ending character to buffer
+		buffer - > തു
+		buffer contains level 1 ending. Stemp
+		RESULT :  സമയമായിരിക്കുന്ന
+
+step 4 :	add ending character to buffer
+		buffer -> ന്ന
+		not found in level 1
+
+step 5 :	add another character to buffer
+		buffer -> ക്കുന്ന
+		not in level 2 (ക്കുന്ന seems like it could be classified as level 2, but no. more on that below)
+
+step 6 : 	add another character to buffer
+		buffer -> രിക്കുന്ന	
+		buffer contains level 3 ending. Stem
+		RESULT : സമയമായി
+
+step 7 :	add character to buffer
+		buffer -> യി
+		buffer contains level 1 character, stem
+		RESULT : സമയമാ
+		
+step 8 :	add character to buffer
+		buffer -> മാ
+		buffer contains level 1 character, stem
+		RESULT : സമയം
+
+step 9 : 	Base word obtained. Terminate
+
+A quick look tells me that recursion is the only way to go. In step 5, we did not classify ക്കുന്ന as level 2 because it is never found independently. It is often
+രിക്കുന്ന or   പ്പിക്കുന്ന or യിക്കുന്ന etc. That is, stemming will seldom get us the base word. If we add it to level 2 despite all this, then :
+
+step 5 : 	add another character to buffer
+		buffer -> ക്കുന്ന
+		found in level 2, stem
+
+step 6 : 	add character 
+		buffer -> രി
+		found in (level 1?)
+
+As you can see above, adding ക്കുന്ന to level 2 will result in another stemming operation, that is another recursive function call. This means the efficiency of the algorithm is highly dependend on what endings are classified as level 2 and 3.
+
+Why levels instead of a longest possible match?
+
+Varnam should use stemming so that it can learn the variations in a word. 
+For example, giving മരത്തിലൂടെ as the input should enable varnam to learn the word മരം as well.
+If we had used the stem rule ത്തിലൂടെ = ം, we can obtain the root മരം.
+However, if we break down the stemming into stages, then മരത്തിലൂടെ would stem to മരത്തിലൂ in step 1 and then to മരത്തിൽ.
+upon detecting that മരത്തിൽ has an independent existence (altogether another problem), varnam can learn മരത്തിൽ as well. This would not have been so if longest suffix match had been employed.  
