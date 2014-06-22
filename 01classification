@@ -1,3 +1,5 @@
+#The thought process. The final implementation might vary a LOT
+
 The word endings can be classified based on their size.
 
 LEVEL 3 :
@@ -30,7 +32,7 @@ eg :
 The stemming of വിശ്വാസമായിരിക്കുന്ന can be done sequentially as follows :
 
 വിശ്വാസമായിരിക്കുന്ന 	->	വിശ്വാസമാ	->	വിശ്വാസം
-level 4 ending		->	level 1 ending	->	base word
+level 3 ending		->	level 1 ending	->	base word
 
 
 We stop stemming when the final character is either a syllable without swaraas (as in പ്രതീക്ഷ) or an ം (as in വിശ്വാസം).
@@ -46,17 +48,19 @@ Input : തൽപരകക്ഷികളുടെ
 We take each character from the rear, keep it in a buffer and try to stem it
 
 step 1 : 	buffer -> ടെ 
-		buffer contains level 1 ending. Stem to null
+		buffer belongs to no level. 
 		RESULT : തൽപരകക്ഷികളു
 
-step 2 :	buffer -> ളു
-		buffer contains level 1 ending. Stem to ൾ
+step 2 :	buffer -> ളുടെ
+		buffer contains level 2 ending. Stem to ൾ
 		RESULT : തൽപരകക്ഷികൾ
 
 step 3 : 	stemming stops
 
 Now consider a more complex example :
 
+#Please note that the stem rules applied in the below example differ from those used by libvarnam. The example just gives the overall picture of the process
+#that does the stemming. In the actual implementation, the stemrules used below might belong to a different level than the one specified. Will be updated soon.
 Input : സമയമായിരിക്കുന്നതുക്കൊണ്ടു
 
 step 1 :	buffer -> ണ്ടു
