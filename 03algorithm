@@ -1,25 +1,37 @@
+VARNAM STEMMER
+
+
 1. Compile the scheme file and insert values into stemrules table
+
 2. buffer = empty_string_bufer
-3. Do not stem if size of word is less than 10 bytes.
+
+3. Do not stem if size of word is less than 10 bytes. (Min_stem_size)
+
 4. While (termination_condition() is not met)
-	4.1 Get last letter of the word and append it to buffer
+
+	4.1 Get last letter of the word and insert it at the beginning of the buffer
+
 	4.2 if buffer is in level1
-		4.2.1 apply stemrule from level1
+		4.2.1 apply stemrule from level1, word is modified
 		4.2.2 if(independent_existence)
 			4.2.2.1 learn word
-		4.2.3 clear bufer
+		4.2.3 clear buffer
+
 	4.3 else if buffer is in level2
-		4.3.1 apply stemrule from level2
+		4.3.1 apply stemrule from level2, word is modified
 		4.3.2 if(independent_existence)
 			4.3.2.1 learn word
 		4.3.3 clear buffer
+
     4.4 else if buffer is in level3
- 		4.4.1 apply stemrule from level3
+ 		4.4.1 apply stemrule from level3, word is modified
  		4.4.2 if(independent_existence)
  			4.4.2.1 learn word
  		4.4.3 clear buffer
+
  	4.5 else
  		4.5.1 break
+
 5. Learn the stemmed word
 
 
@@ -27,6 +39,11 @@ TERMINATION CONDITION
 1. Return true if :
 	a) The word ends with ം
 	b) If the word ends with a consonant and there is no added swara eg : പരീക്ഷ (pareeksha)
-	c) If size of the word is less than 9 bytes
+	c) If the buffer contains the rest of the word (or whole of it)
 
 
+INDEPENDENT EXISTENCE:
+
+If the word can be stemmed further but the current intermediate form has an independent existence, learn it.
+Eg: മരത്തിലൂടെ would stem to മരത്തിലൂ in step 1 and then to മരത്തിൽ.
+upon detecting that മരത്തിൽ has an independent existence, varnam should learn it and then continue stemming.

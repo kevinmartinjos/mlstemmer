@@ -1,0 +1,1 @@
+This repository contains algorithms and notes that I made while developing a stemmer for libvarnam. All the examples and descriptions are done using Malayalam as an example language, and support for more indic languages will (hopefully) follow.
